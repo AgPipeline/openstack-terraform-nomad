@@ -59,3 +59,8 @@ variable "dns_nameservers" {
   type = "list"
   default = []
 }
+
+variable "bastion_allowed_cidr" {
+  description = "A CIDR range of IP addresses which are allowed to SSH to the bastion host."
+  default = "0.0.0.0/0"
+}
