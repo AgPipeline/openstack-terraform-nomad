@@ -21,19 +21,23 @@ are just _name_ = "_value_"
 Most of the variables should be obvious, but here is a summary with some detail
 on the more specific value domains.
 
-| Variable                 | Description                                                           |
-| ------------------------ | -----------                                                           |
-| env_name                 | Root name for this pipeline. Will be used to name nodes and networks |
-| openstack_cloud          | Name of the OpenStack cloud to use - the credentials should be in your `clouds.yaml` file. See below. |
-| pubkey                   | Path to a public key file which will be used to generate the OpenStack key pair |
-| privkey                  | Path to the corresponding private key file which will be used to access the hosts |
-| postgresql_flavor        | Name of the OpenStack instance flavor to use for the PostgreSQL node |
-| postgresql_image         | Name of the OS image to be used to initialize PostgreSQL node. |
-| postgresql_volume_size   | Specify the size of the storage attached to the PostgreSQL node. Expressed in GBytes |
-| external_network_name    | Name of the network that has the gateway to the internet (e.g. `ext-net`, `public`) |
-| pool_name                | The name of the pool from which the floating IP belongs to (usually the external network's name) |
-| availability_zone        | Name of the OpenStack availability zone where the hosts should be provisioned |
-| dns_nameservers          | A list of IP addresses of DNS name servers available to the new subnet |
+| Variable                  | Description                                                           |
+| ------------------------- | --------------------------------------------------------------------- |
+| env_name                  | Root name for this pipeline. Will be used to name nodes and networks |
+| openstack_cloud           | Name of the OpenStack cloud to use - the credentials should be in your `clouds.yaml` file. See below. |
+| pubkey                    | Path to a public key file which will be used to generate the OpenStack key pair |
+| privkey                   | Path to the corresponding private key file which will be used to access the hosts |
+| postgresql_flavor         | Name of the OpenStack instance flavor to use for the PostgreSQL node |
+| postgresql_image          | Name of the OS image to be used to initialize PostgreSQL node. |
+| postgresql_volume_size    | Specify the size of the storage attached to the PostgreSQL node. Expressed in GBytes |
+| mongo_flavor              | Name of the OpenStack instance flavor to use for the MongoDB node |
+| mongo_image               | Name of the OS image to be used to initialize MongoDB node. |
+| mongo_volume_size         | Specify the size of the storage attached to the MongoDB node. Expressed in GBytes |
+| mongo_count               | How many MongoDB nodes to provision                                       |
+| external_network_name     | Name of the network that has the gateway to the internet (e.g. `ext-net`, `public`) |
+| pool_name                 | The name of the pool from which the floating IP belongs to (usually the external network's name) |
+| availability_zone         | Name of the OpenStack availability zone where the hosts should be provisioned |
+| dns_nameservers           | A list of IP addresses of DNS name servers available to the new subnet |
 
 
 ### Initialize Terraform

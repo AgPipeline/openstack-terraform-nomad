@@ -26,6 +26,22 @@ variable "postgresql_volume_size" {
   default = "600"
 }
 
+variable "mongo_flavor" {
+  default = "medium1"
+}
+
+variable "mongo_image" {
+  default = "ubuntu-16.04.raw"
+}
+
+variable "mongo_volume_size" {
+  default = "600"
+}
+
+variable "mongo_count" {
+  default = "3"
+}
+
 variable "external_network_name" {
   default = "public"
 }
@@ -40,6 +56,6 @@ variable "availability_zone" {
 
 variable "dns_nameservers" {
   description = "An array of DNS name server names used by hosts in this subnet."
-  type        = "list"
-  default     = []
+  type = "list"
+  default = []
 }
