@@ -30,7 +30,7 @@ on the more specific value domains.
 | postgresql_flavor        | Name of the OpenStack instance flavor to use for the PostgreSQL node |
 | postgresql_image         | Name of the OS image to be used to initialize PostgreSQL node. |
 | postgresql_volume_size   | Specify the size of the storage attached to the PostgreSQL node. Expressed in GBytes |
-| external_network_id      | ID of the network that has the gateway to the internet |
+| external_network_name    | Name of the network that has the gateway to the internet (e.g. `ext-net`, `public`) |
 | pool_name                | The name of the pool from which the floating IP belongs to (usually the external network's name) |
 | availability_zone        | Name of the OpenStack availability zone where the hosts should be provisioned |
 | dns_nameservers          | A list of IP addresses of DNS name servers available to the new subnet |

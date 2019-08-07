@@ -26,8 +26,8 @@ variable "postgresql_volume_size" {
   default = "50"
 }
 
-variable "external_network_id" {
-  default = ""
+variable "external_network_name" {
+  default = "public"
 }
 
 variable "pool_name" {
