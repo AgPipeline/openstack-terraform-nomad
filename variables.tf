@@ -23,7 +23,7 @@ variable "postgresql_image" {
 }
 
 variable "postgresql_volume_size" {
-  default = "50"
+  default = "600"
 }
 
 variable "external_network_name" {
