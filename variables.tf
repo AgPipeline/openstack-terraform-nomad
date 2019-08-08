@@ -14,6 +14,14 @@ variable "privkey" {
   default = "~/.ssh/id_rsa"
 }
 
+variable "bastion_flavor" {
+  default = "tiny1"
+}
+
+variable "bastion_image" {
+  default = "ubuntu-18.04.raw"
+}
+
 variable "postgresql_flavor" {
   default = "medium1"
 }

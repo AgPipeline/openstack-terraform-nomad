@@ -21,12 +21,6 @@ resource "openstack_compute_instance_v2" "postgresql" {
   ]
 }
 
-resource "openstack_compute_floatingip_associate_v2" "postgresql_ip" {
-  floating_ip = "${openstack_networking_floatingip_v2.postgresql_ip.address}"
-  instance_id = "${openstack_compute_instance_v2.postgresql.id}"
-  fixed_ip    = "${openstack_compute_instance_v2.postgresql.network.0.fixed_ip_v4}"
-}
-
 resource "openstack_compute_volume_attach_v2" "postgresql_data" {
   volume_id   = "${openstack_blockstorage_volume_v2.postgresql_data.id}"
   instance_id = "${openstack_compute_instance_v2.postgresql.id}"
@@ -34,4 +28,8 @@ resource "openstack_compute_volume_attach_v2" "postgresql_data" {
 
 locals {
   postgresql_data_device = "${openstack_compute_volume_attach_v2.postgresql_data.device}"
+}
+
+output postgresql-instance-fixed-ip {
+  value = "${openstack_compute_instance_v2.postgresql.network.0.fixed_ip_v4}"
 }

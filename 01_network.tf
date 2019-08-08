@@ -21,6 +21,6 @@ resource "openstack_networking_router_interface_v2" "router_interface_1" {
   subnet_id = "${openstack_networking_subnet_v2.subnet_1.id}"
 }
 
-resource "openstack_networking_floatingip_v2" "postgresql_ip" {
+resource "openstack_networking_floatingip_v2" "bastion_ip" {
   pool = "${var.pool_name}"
 }
