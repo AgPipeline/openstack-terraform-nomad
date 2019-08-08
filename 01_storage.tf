@@ -8,3 +8,8 @@ resource "openstack_blockstorage_volume_v2" "mongo_data" {
   name  = "${var.env_name}-mongo-data${count.index}"
   size  = "${var.mongo_volume_size}"
 }
+
+resource "openstack_blockstorage_volume_v2" "mongo_opsmanager_data" {
+  name  = "${var.env_name}-mongo-opsmanager-data"
+  size  = "${var.mongo_opsmanager_volume_size}"
+}

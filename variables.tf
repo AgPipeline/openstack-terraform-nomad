@@ -50,6 +50,18 @@ variable "mongo_count" {
   default = "3"
 }
 
+variable "mongo_opsmanager_flavor" {
+  default = "medium1"
+}
+
+variable "mongo_opsmanager_image" {
+  default = "ubuntu-18.04.raw"
+}
+
+variable "mongo_opsmanager_volume_size" {
+  default = "2000"
+}
+
 variable "external_network_name" {
   default = "public"
 }
