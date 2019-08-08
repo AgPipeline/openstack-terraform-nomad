@@ -34,6 +34,14 @@ variable "postgresql_volume_size" {
   default = "600"
 }
 
+variable "barman_flavor" {
+  default = "medium1"
+}
+
+variable "barman_image" {
+  default = "ubuntu-18.04.raw"
+}
+
 variable "mongo_flavor" {
   default = "medium1"
 }
