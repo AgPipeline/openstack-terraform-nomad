@@ -27,7 +27,7 @@ variable "postgresql_flavor" {
 }
 
 variable "postgresql_image" {
-  default = "ubuntu-16.04.raw"
+  default = "ubuntu-18.04.raw"
 }
 
 variable "postgresql_volume_size" {
@@ -39,7 +39,7 @@ variable "mongo_flavor" {
 }
 
 variable "mongo_image" {
-  default = "ubuntu-16.04.raw"
+  default = "ubuntu-18.04.raw"
 }
 
 variable "mongo_volume_size" {
