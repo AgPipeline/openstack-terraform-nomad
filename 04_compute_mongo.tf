@@ -14,6 +14,12 @@ resource "openstack_compute_instance_v2" "mongo" {
     "default",
   ]
 
+  depends_on = [
+    "openstack_networking_router_interface_v2.router_interface_1",
+    "openstack_blockstorage_volume_v2.mongo_data",
+    "openstack_networking_subnet_v2.subnet_1"
+  ]
+
 }
 
 resource "openstack_compute_volume_attach_v2" "mongo_data" {
@@ -22,3 +28,6 @@ resource "openstack_compute_volume_attach_v2" "mongo_data" {
   instance_id = "${element(openstack_compute_instance_v2.mongo.*.id, count.index)}"
 }
 
+output mongo-instances-fixed-ips {
+  value = "${openstack_compute_instance_v2.mongo.*.network.0.fixed_ip_v4}"
+}
