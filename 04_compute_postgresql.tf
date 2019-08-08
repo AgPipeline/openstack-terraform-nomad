@@ -10,8 +10,7 @@ resource "openstack_compute_instance_v2" "postgresql" {
   }
 
   security_groups = [
-    "${openstack_compute_secgroup_v2.bastion.name}",
-    "default",
+    "default"
   ]
 
   depends_on = [
