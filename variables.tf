@@ -56,11 +56,11 @@ variable "availability_zone" {
 
 variable "dns_nameservers" {
   description = "An array of DNS name server names used by hosts in this subnet."
-  type = "list"
-  default = []
+  type        = "list"
+  default     = []
 }
 
 variable "bastion_allowed_cidr" {
   description = "A CIDR range of IP addresses which are allowed to SSH to the bastion host."
-  default = "0.0.0.0/0"
+  default     = "0.0.0.0/0"
 }

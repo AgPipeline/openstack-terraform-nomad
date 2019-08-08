@@ -5,6 +5,6 @@ resource "openstack_blockstorage_volume_v2" "postgresql_data" {
 
 resource "openstack_blockstorage_volume_v2" "mongo_data" {
   count = "${var.mongo_count}"
-  name = "${var.env_name}-mongo-data${count.index}"
-  size = "${var.mongo_volume_size}"
+  name  = "${var.env_name}-mongo-data${count.index}"
+  size  = "${var.mongo_volume_size}"
 }
