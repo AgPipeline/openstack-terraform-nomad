@@ -9,3 +9,6 @@ configs/
 
 # Cloud credentials
 clouds.yaml
+
+# Vagrant & VirtualBox
+.vagrant
