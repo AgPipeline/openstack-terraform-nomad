@@ -176,7 +176,7 @@ Should show three healthy "task groups" and allocations for Mongo.
 
 ## Find the Mongo hosts & ports
 
-Go to <http://localhost:4646/ui/jobs/postgresql/database> and click on one of the allocations. 
+Go to <http://localhost:4646/ui/jobs/mongo/database> and click on one of the allocations. 
 
 Should see a task called `mongo_container` and an address with label `db`.
 
@@ -205,10 +205,68 @@ It looks like you are trying to access MongoDB over HTTP on the native driver po
 ```
 
 
-## Run a command in the environment of a Nomad allocation and task
+## Start RabbitMQ job
+
+Based on [Docker "official image"](https://hub.docker.com/_/rabbitmq).
+
+```bash
+vagrant ssh
+cd nomad-test 
+nomad job plan rabbitmq.nomad
+nomad job run -check-index 0 rabbitmq.nomad
+nomad job status rabbitmq
+```
+
+Also check the browser UI: <http://localhost:4646/ui/jobs>
+
+Should show three healthy "task groups" and allocations for RabbitMQ.
+
+
+## Find the RabbitMQ hosts & ports
+
+Go to <http://localhost:4646/ui/jobs/rabbitmq/broker> and click on one of the allocations. 
+
+Should see a task called `rabbitmq_container` and two addresses with labels `endpoint` and `management`.
+
+Can also use `nomad alloc`:
+
+```bash
+nomad job status rabbitmq | grep " broker " | cut -d " " -f1 | xargs -L 1 nomad alloc status | grep "endpoint: " 
+nomad job status rabbitmq | grep " broker " | cut -d " " -f1 | xargs -L 1 nomad alloc status | grep "management: " 
+```
+
+
+## Test that RabbitMQ works
+
+In Vagrant shell:
+
+```bash
+# Set RABBITMQ_MANAGEMENT_ADDRESS to one of the management host:port combinations from above: 
+RABBITMQ_MANAGEMENT_ADDRESS=10.0.2.15:28279
+curl ${RABBITMQ_MANAGEMENT_ADDRESS}
+```
+
+Should see some HTML.
+
+
+## Open RabbitMQ management dashboard in local browser
+
+On laptop, forward port to one of the :
+
+```bash
+# Set RABBITMQ_MANAGEMENT_ADDRESS to one of the management host:port combinations from above:
+RABBITMQ_MANAGEMENT_ADDRESS=10.0.2.15:28279
+vagrant ssh -- -L 127.0.0.1:15672:${RABBITMQ_MANAGEMENT_ADDRESS}
+```
+
+Then open <http://127.0.0.1:15672> in browser on your laptop, and log in with `guest:guest`.
+
+
+## For a specified Nomad job, run a command in the environment of a random allocation 
 
 ```bash
 vagrant ssh
 nomad exec -i -t -job mongo ps aux
 nomad exec -i -t -job postgresql ps aux
+nomad exec -i -t -job rabbitmq ps aux
 ``` 
