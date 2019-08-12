@@ -75,6 +75,8 @@ Vagrant.configure(2) do |config|
   # Expose the nomad api and ui to the host
   config.vm.network "forwarded_port", guest: 4646, host: 4646, auto_correct: true
 
+  config.vm.synced_folder "nomad-test/", "/home/vagrant/nomad-test", owner: "vagrant", group: "vagrant"
+
   # Increase memory for Parallels Desktop
   config.vm.provider "parallels" do |p, o|
     p.memory = "1024"
