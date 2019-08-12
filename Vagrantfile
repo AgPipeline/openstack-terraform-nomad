@@ -24,7 +24,7 @@ sudo docker --version
 sudo apt-get install unzip curl vim -y
 
 echo "Installing Nomad..."
-NOMAD_VERSION=0.8.6
+NOMAD_VERSION=0.9.4
 cd /tmp/
 curl -sSL https://releases.hashicorp.com/nomad/${NOMAD_VERSION}/nomad_${NOMAD_VERSION}_linux_amd64.zip -o nomad.zip
 unzip nomad.zip
@@ -34,7 +34,7 @@ sudo chmod a+w /etc/nomad.d
 
 
 echo "Installing Consul..."
-CONSUL_VERSION=1.4.0
+CONSUL_VERSION=1.5.2
 curl -sSL https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_linux_amd64.zip > consul.zip
 unzip /tmp/consul.zip
 sudo install consul /usr/bin/consul
@@ -68,7 +68,7 @@ nomad -autocomplete-install
 SCRIPT
 
 Vagrant.configure(2) do |config|
-  config.vm.box = "bento/ubuntu-16.04" # 16.04 LTS
+  config.vm.box = "bento/ubuntu-18.04" # 16.04 LTS
   config.vm.hostname = "nomad"
   config.vm.provision "shell", inline: $script, privileged: false
 
@@ -82,7 +82,7 @@ Vagrant.configure(2) do |config|
 
   # Increase memory for Virtualbox
   config.vm.provider "virtualbox" do |vb|
-        vb.memory = "1024"
+        vb.memory = "4096"
   end
 
   # Increase memory for VMware
