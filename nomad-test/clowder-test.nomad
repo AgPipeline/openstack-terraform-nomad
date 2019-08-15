@@ -1,4 +1,4 @@
-job "postgresql" {
+job "clowder-test" {
   datacenters = [
     "dc1"]
   type        = "service"
@@ -19,8 +19,8 @@ job "postgresql" {
     healthy_deadline = "5m"
   }
 
-  group "database" {
-    count = 1
+  group "web" {
+    count = 3
     restart {
       attempts = 2
       interval = "30m"
@@ -34,38 +34,49 @@ job "postgresql" {
       size    = 300
     }
 
-    task "postgresql_container" {
+    task "web_container" {
       driver = "docker"
 
       config {
-        image = "postgres:9.6.15-alpine"
+        //        image = "clowder/clowder:1.7.1"
+        image       = "jpistorius/clowder:dev"
+        //        image = "nginx:1.16.0-alpine"
         port_map {
-          db = 5432
+          //          http = 80
+          http = 9000
         }
-      }
-
-      env {
-        POSTGRES_PASSWORD = "some-long-password-here"
+        extra_hosts = [
+          "mylocalhost:${attr.unique.network.ip-address}",
+          "nomad-host-ip:${NOMAD_IP_http}",
+          "localhost:${NOMAD_IP_http}"
+        ]
       }
 
       resources {
-        cpu    = 500
-        memory = 512
+        cpu    = 50
+        memory = 64
         network {
           mbits = 10
-          port "db" {}
+          port "http" {}
         }
       }
 
       service {
-        name = "postgresql"
+        name = "clowder-web-test"
         tags = [
-          "urlprefix-:5432 proto=tcp"
-        ]
-        port = "db"
+          "urlprefix-/"]
+        port = "http"
+        check {
+          name     = "tcp-check"
+          port     = "http"
+          type     = "tcp"
+          interval = "10s"
+          timeout  = "2s"
+        }
         check {
           name     = "alive"
-          type     = "tcp"
+          type     = "http"
+          path     = "/"
           interval = "10s"
           timeout  = "2s"
         }

@@ -74,23 +74,15 @@ Vagrant.configure(2) do |config|
 
   # Expose the nomad api and ui to the host
   config.vm.network "forwarded_port", guest: 4646, host: 4646, auto_correct: true
+  # Expose the consul API & UI to the host
+  config.vm.network "forwarded_port", guest_ip: "127.0.0.1", guest: 8500, host: 8500, auto_correct: true
 
   config.vm.synced_folder "nomad-test/", "/home/vagrant/nomad-test", owner: "vagrant", group: "vagrant"
 
-  # Increase memory for Parallels Desktop
-  config.vm.provider "parallels" do |p, o|
-    p.memory = "1024"
-  end
-
-  # Increase memory for Virtualbox
+   # Increase memory for Virtualbox
   config.vm.provider "virtualbox" do |vb|
-        vb.memory = "4096"
+        vb.memory = "6144"
+        vb.cpus = 4
   end
 
-  # Increase memory for VMware
-  ["vmware_fusion", "vmware_workstation"].each do |p|
-    config.vm.provider p do |v|
-      v.vmx["memsize"] = "1024"
-    end
-  end
 end

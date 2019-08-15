@@ -19,7 +19,7 @@ job "mongo" {
   }
 
   group "database" {
-    count = 3
+    count = 1
     restart {
       attempts = 2
       interval = "30m"
@@ -54,7 +54,6 @@ job "mongo" {
 
       service {
         name = "mongo"
-        tags = ["global", "mongo", "mongodb", "database", "db"]
         port = "db"
         check {
           name     = "alive"

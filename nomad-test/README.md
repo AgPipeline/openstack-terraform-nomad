@@ -262,6 +262,18 @@ vagrant ssh -- -L 127.0.0.1:15672:${RABBITMQ_MANAGEMENT_ADDRESS}
 Then open <http://127.0.0.1:15672> in browser on your laptop, and log in with `guest:guest`.
 
 
+## Start Clowder job
+
+```bash
+vagrant ssh
+cd nomad-test 
+nomad job plan clowder.nomad 
+nomad job run -check-index 0 clowder.nomad
+nomad job status clowder
+```
+
+
+
 ## For a specified Nomad job, run a command in the environment of a random allocation 
 
 ```bash
@@ -269,4 +281,13 @@ vagrant ssh
 nomad exec -i -t -job mongo ps aux
 nomad exec -i -t -job postgresql ps aux
 nomad exec -i -t -job rabbitmq ps aux
-``` 
+```
+
+
+## Stop jobs
+
+```bash
+nomad job stop rabbitmq
+nomad job stop mongo
+nomad job stop postgresql
+```

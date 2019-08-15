@@ -19,7 +19,7 @@ job "rabbitmq" {
   }
 
   group "broker" {
-    count = 3
+    count = 1
     restart {
       attempts = 2
       interval = "30m"
@@ -56,7 +56,6 @@ job "rabbitmq" {
 
       service {
         name = "rabbitmq"
-        tags = ["global", "rabbitmq", "message-broker", "queue"]
         port = "endpoint"
         check {
           name     = "alive"
@@ -68,7 +67,6 @@ job "rabbitmq" {
 
       service {
         name = "rabbitmq-management"
-        tags = ["global", "rabbitmq", "rabbitmq-management"]
         port = "management"
         check {
           name     = "alive"
