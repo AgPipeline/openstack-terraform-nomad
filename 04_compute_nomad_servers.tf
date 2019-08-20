@@ -5,10 +5,10 @@ resource "openstack_compute_instance_v2" "nomad_server" {
   key_pair          = openstack_compute_keypair_v2.terraform.name
   availability_zone = var.availability_zone
   user_data         = templatefile("templates/install_consul_nomad.sh",
-    {
-      CONSUL_VERSION="1.5.2",
-      NOMAD_VERSION="0.9.4"
-    }
+  {
+    CONSUL_VERSION = "1.5.2",
+    NOMAD_VERSION  = "0.9.4"
+  }
   )
 
   block_device {
@@ -25,8 +25,8 @@ resource "openstack_compute_instance_v2" "nomad_server" {
   }
 
   security_groups = [
-    "${openstack_compute_secgroup_v2.consul_server.name}",
-    "${openstack_compute_secgroup_v2.nomad_server.name}",
+    openstack_compute_secgroup_v2.consul_server.name,
+    openstack_compute_secgroup_v2.nomad_server.name,
     "default",
   ]
 
@@ -35,28 +35,32 @@ resource "openstack_compute_instance_v2" "nomad_server" {
     "openstack_networking_subnet_v2.subnet_1",
     "openstack_compute_instance_v2.bastion"
   ]
-
-  //  connection {
-  //    agent = "true"
-  //    type = "ssh"
-  //    host = openstack_compute_instance_v2.nomad_server.*.network.0.fixed_ip_v4[count.index]
-  ////    user = "core"
-  //    user = "ubuntu"
-  //    private_key = file(var.privkey)
-  //    bastion_host = openstack_networking_floatingip_v2.bastion_ip.address
-  //    bastion_private_key = file(var.privkey)
-  //  }
-
-  //  provisioner "remote-exec" {
-  //    inline = [
-  //      "git clone --branch v0.5.0 --depth 1 https://github.com/hashicorp/terraform-aws-nomad.git",
-  //      "terraform-aws-nomad/modules/install-nomad/install-nomad --version 0.9.4",
-  ////      "/opt/nomad/bin/run-nomad --server --num-servers ${var.nomad_server_count}}"
-  //    ]
-  //  }
-
 }
 
 output nomad-servers-fixed-ips {
   value = "${openstack_compute_instance_v2.nomad_server.*.network.0.fixed_ip_v4}"
+}
+
+resource "null_resource" "consul_cluster" {
+  count    = length(openstack_compute_instance_v2.nomad_server)
+  # Changes to any of the IP addresses of the OTHER instances of the cluster requires re-provisioning
+  triggers = {
+    cluster_instance_ips = join(" ", [for s in "${openstack_compute_instance_v2.nomad_server.*.network.0.fixed_ip_v4}" : s if s != openstack_compute_instance_v2.nomad_server[count.index].network[0].fixed_ip_v4])
+  }
+
+  connection {
+    host                = openstack_compute_instance_v2.nomad_server[count.index].network.0.fixed_ip_v4
+    agent               = "true"
+    type                = "ssh"
+    user                = "ubuntu"
+    private_key         = file(var.privkey)
+    bastion_host        = openstack_networking_floatingip_v2.bastion_ip.address
+    bastion_private_key = file(var.privkey)
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "sudo consul join ${self.triggers.cluster_instance_ips}"
+    ]
+  }
 }
