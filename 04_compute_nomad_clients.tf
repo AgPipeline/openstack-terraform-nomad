@@ -6,6 +6,15 @@ resource "openstack_compute_instance_v2" "nomad_client" {
   key_pair          = "${openstack_compute_keypair_v2.terraform.name}"
   availability_zone = "${var.availability_zone}"
 
+  block_device {
+    uuid                  = data.openstack_images_image_v2.nomad_client_image.id
+    source_type           = "image"
+    volume_size           = var.nomad_client_vol_size
+    boot_index            = 0
+    destination_type      = "volume"
+    delete_on_termination = true
+  }
+
   network {
     name = "${var.env_name}-net"
   }
@@ -16,9 +25,9 @@ resource "openstack_compute_instance_v2" "nomad_client" {
 
   depends_on = [
     "openstack_networking_router_interface_v2.router_interface_1",
-    "openstack_networking_subnet_v2.subnet_1"
+    "openstack_networking_subnet_v2.subnet_1",
+    "openstack_compute_instance_v2.bastion"
   ]
-
 }
 
 output nomad-clients-fixed-ips {

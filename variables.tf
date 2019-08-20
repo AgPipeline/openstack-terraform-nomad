@@ -98,11 +98,16 @@ variable nomad_server_count {
 }
 
 variable nomad_server_flavor {
-  default = "medium1"
+  default = "medium2"
 }
 
 variable nomad_server_image {
-  default = "Container-Linux"
+//  default = "Container-Linux"
+  default = "ubuntu-18.04.raw"
+}
+
+variable nomad_server_vol_size {
+  default = "100"
 }
 
 variable nomad_client_count {
@@ -110,9 +115,22 @@ variable nomad_client_count {
 }
 
 variable nomad_client_flavor {
-  default = "medium1"
+  default = "medium2"
 }
 
 variable nomad_client_image {
-  default = "Container-Linux"
+//  default = "Container-Linux"
+  default = "ubuntu-18.04.raw"
+}
+
+variable nomad_client_vol_size {
+  default = "100"
+}
+
+variable "discovery_url_file" {
+  default = "templates/discovery_url"
+}
+
+variable "consul_master_token" {
+  default = "_consul_master_token_"
 }
