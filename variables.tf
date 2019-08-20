@@ -92,3 +92,27 @@ variable "bastion_allowed_cidr" {
   description = "A CIDR range of IP addresses which are allowed to SSH to the bastion host."
   default     = "0.0.0.0/0"
 }
+
+variable nomad_server_count {
+  default = "3"
+}
+
+variable nomad_server_flavor {
+  default = "medium1"
+}
+
+variable nomad_server_image {
+  default = "Container-Linux"
+}
+
+variable nomad_client_count {
+  default = "3"
+}
+
+variable nomad_client_flavor {
+  default = "medium1"
+}
+
+variable nomad_client_image {
+  default = "Container-Linux"
+}
