@@ -25,7 +25,6 @@ resource "openstack_networking_floatingip_v2" "bastion_ip" {
   pool = "${var.pool_name}"
 }
 
-
 resource "openstack_networking_floatingip_v2" "consul_discovery_node_ip" {
   pool = "${var.pool_name}"
 }
