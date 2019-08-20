@@ -53,7 +53,6 @@ chmod 640 /etc/consul.d/consul.hcl
 datacenter = "dc1"
 data_dir = "/opt/consul"
 encrypt = "ksPaGuw0s0j1RRAf/NlnkQ=="
-retry_join = ["${RETRY_JOIN}"]
 performance {
   raft_multiplier = 1
 }

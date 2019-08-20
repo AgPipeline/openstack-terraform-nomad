@@ -102,7 +102,6 @@ variable nomad_server_flavor {
 }
 
 variable nomad_server_image {
-//  default = "Container-Linux"
   default = "ubuntu-18.04.raw"
 }
 
@@ -119,16 +118,11 @@ variable nomad_client_flavor {
 }
 
 variable nomad_client_image {
-//  default = "Container-Linux"
   default = "ubuntu-18.04.raw"
 }
 
 variable nomad_client_vol_size {
   default = "100"
-}
-
-variable "discovery_url_file" {
-  default = "templates/discovery_url"
 }
 
 variable "consul_master_token" {
