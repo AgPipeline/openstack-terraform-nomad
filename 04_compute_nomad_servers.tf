@@ -6,8 +6,10 @@ resource "openstack_compute_instance_v2" "nomad_server" {
   availability_zone = var.availability_zone
   user_data         = templatefile("templates/install_consul_nomad.sh",
   {
-    CONSUL_VERSION = "1.5.2",
-    NOMAD_VERSION  = "0.9.4"
+    CONSUL_VERSION = var.consul_version,
+    NOMAD_VERSION  = var.nomad_version,
+    CONSUL_MASTER_TOKEN = var.consul_master_token,
+    NOMAD_SERVER_COUNT = var.nomad_server_count
   }
   )
 
@@ -58,9 +60,25 @@ resource "null_resource" "consul_cluster" {
     bastion_private_key = file(var.privkey)
   }
 
+  provisioner "file" {
+    content         = templatefile("templates/consul.hcl.tpl",
+    {
+      CONSUL_MASTER_TOKEN = var.consul_master_token,
+      OTHER_CONSUL_HOSTS = [for s in "${openstack_compute_instance_v2.nomad_server.*.network.0.fixed_ip_v4}" : s if s != openstack_compute_instance_v2.nomad_server[count.index].network[0].fixed_ip_v4]
+    }
+    )
+    destination     = "/home/ubuntu/consul.hcl"
+  }
+
   provisioner "remote-exec" {
     inline = [
-      "sudo consul join ${self.triggers.cluster_instance_ips}"
+      "until [ -e /etc/consul.d/consul.hcl ]; do echo \"/etc/consul.d/consul.hcl doesn't exist as of yet...\"; sleep 5; done",
+      "until [ ! -z \"$(grep consul /etc/passwd)\" ]; do echo \"No consul user yet\"; sleep 5; done",
+      "sudo mv /home/ubuntu/consul.hcl /etc/consul.d/consul.hcl",
+      "sudo chmod 640 /etc/consul.d/consul.hcl",
+      "sudo chown consul:consul /etc/consul.d/consul.hcl",
+      "sudo systemctl reload consul",
     ]
+    on_failure = "continue"
   }
 }

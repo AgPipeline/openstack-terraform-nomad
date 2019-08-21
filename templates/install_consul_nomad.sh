@@ -2,6 +2,36 @@
 
 # See: https://learn.hashicorp.com/consul/datacenter-deploy/deployment-guide
 
+mkdir --parents /etc/consul.d
+touch /etc/consul.d/consul.hcl
+chmod 640 /etc/consul.d/consul.hcl
+
+(cat <<-EOF
+datacenter = "dc1"
+data_dir = "/opt/consul"
+encrypt = "${CONSUL_MASTER_TOKEN}"
+# retry_join = ["127.0.0.1"]
+performance {
+  raft_multiplier = 1
+}
+EOF
+) > /etc/consul.d/consul.hcl
+
+useradd --system --home /etc/consul.d --shell /bin/false consul
+chown --recursive consul:consul /etc/consul.d
+
+mkdir --parents /etc/consul.d
+touch /etc/consul.d/server.hcl
+chown --recursive consul:consul /etc/consul.d
+chmod 640 /etc/consul.d/server.hcl
+
+(cat <<-EOF
+server = true
+bootstrap_expect = ${NOMAD_SERVER_COUNT}
+ui = true
+EOF
+) > /etc/consul.d/server.hcl
+
 apt-get update
 apt-get install -y unzip
 
@@ -15,7 +45,6 @@ consul --version
 consul -autocomplete-install
 complete -C /usr/local/bin/consul consul
 
-useradd --system --home /etc/consul.d --shell /bin/false consul
 mkdir --parents /opt/consul
 chown --recursive consul:consul /opt/consul
 
@@ -42,34 +71,6 @@ LimitNOFILE=65536
 WantedBy=multi-user.target
 EOF
 ) > /etc/systemd/system/consul.service
-
-mkdir --parents /etc/consul.d
-touch /etc/consul.d/consul.hcl
-chown --recursive consul:consul /etc/consul.d
-chmod 640 /etc/consul.d/consul.hcl
-
-
-(cat <<-EOF
-datacenter = "dc1"
-data_dir = "/opt/consul"
-encrypt = "ksPaGuw0s0j1RRAf/NlnkQ=="
-performance {
-  raft_multiplier = 1
-}
-EOF
-) > /etc/consul.d/consul.hcl
-
-mkdir --parents /etc/consul.d
-touch /etc/consul.d/server.hcl
-chown --recursive consul:consul /etc/consul.d
-chmod 640 /etc/consul.d/server.hcl
-
-(cat <<-EOF
-server = true
-bootstrap_expect = 3
-ui = true
-EOF
-) > /etc/consul.d/server.hcl
 
 systemctl enable consul
 systemctl start consul
