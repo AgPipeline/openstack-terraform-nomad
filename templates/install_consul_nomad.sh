@@ -130,7 +130,7 @@ touch /etc/nomad.d/server.hcl
 (cat <<-EOF
 server {
   enabled = true
-  bootstrap_expect = 3
+  bootstrap_expect = ${NOMAD_SERVER_COUNT}
 }
 EOF
 ) > /etc/nomad.d/server.hcl

@@ -77,8 +77,10 @@ resource "null_resource" "consul_cluster" {
       "sudo mv /home/ubuntu/consul.hcl /etc/consul.d/consul.hcl",
       "sudo chmod 640 /etc/consul.d/consul.hcl",
       "sudo chown consul:consul /etc/consul.d/consul.hcl",
+      "until [ ! -z \"$(systemctl list-unit-files | grep consul.service | grep enabled)\" ]; do echo \"No consul service yet\"; sleep 5; done",
       "sudo systemctl reload consul",
+      "until [ ! -z \"$(systemctl list-unit-files | grep nomad.service | grep enabled)\" ]; do echo \"No nomad service yet\"; sleep 5; done"
     ]
-    on_failure = "continue"
+    on_failure = "fail"
   }
 }
