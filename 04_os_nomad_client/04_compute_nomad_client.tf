@@ -81,10 +81,20 @@ resource "null_resource" "update_consul_cluster_for_client" {
     destination     = "/home/ubuntu/consul.hcl"
   }
 
+  provisioner "file" {
+    content         = templatefile("../templates/nomad_client.hcl.tpl",
+    {
+      NOMAD_HOSTS = flatten(data.openstack_networking_port_v2.consul_server_port.*.all_fixed_ips)
+    }
+    )
+    destination     = "/home/ubuntu/nomad_client.hcl"
+  }
+
   provisioner "remote-exec" {
     inline = [
       "until [ -e /etc/consul.d/consul.hcl ]; do echo \"/etc/consul.d/consul.hcl doesn't exist as of yet...\"; sleep 5; done",
       "until [ ! -z \"$(grep consul /etc/passwd)\" ]; do echo \"No consul user yet\"; sleep 5; done",
+      "sudo mv /home/ubuntu/nomad_client.hcl /etc/nomad.d/client.hcl",
       "sudo mv /home/ubuntu/consul.hcl /etc/consul.d/consul.hcl",
       "sudo chmod 640 /etc/consul.d/consul.hcl",
       "sudo chown consul:consul /etc/consul.d/consul.hcl",
