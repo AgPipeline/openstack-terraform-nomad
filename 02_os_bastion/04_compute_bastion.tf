@@ -1,9 +1,8 @@
 resource "openstack_compute_instance_v2" "bastion" {
   name              = "${var.env_name}-bastion"
-  flavor_name       = "${var.bastion_flavor}"
-  image_name        = "${var.bastion_image}"
+  flavor_name       = "${var.flavor}"
+  image_name        = "${var.image}"
   key_pair          = "${openstack_compute_keypair_v2.terraform.name}"
-  availability_zone = "${var.availability_zone}"
 
   network {
     name = "${var.env_name}-net"
@@ -15,8 +14,7 @@ resource "openstack_compute_instance_v2" "bastion" {
   ]
 
   depends_on = [
-    "openstack_networking_router_interface_v2.router_interface_1",
-    "openstack_networking_subnet_v2.subnet_1"
+    data.openstack_networking_subnet_v2.subnet_1
   ]
 }
 
