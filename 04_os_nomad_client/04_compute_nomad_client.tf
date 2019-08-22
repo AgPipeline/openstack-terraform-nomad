@@ -57,6 +57,10 @@ resource "null_resource" "update_consul_cluster_for_client" {
     cluster_instance_ips = join(" ", flatten(data.openstack_networking_port_v2.consul_server_port.*.all_fixed_ips))
   }
 
+  lifecycle {
+    create_before_destroy = true
+  }
+
   connection {
     host                = openstack_compute_instance_v2.nomad_client[count.index].network.0.fixed_ip_v4
     agent               = "true"

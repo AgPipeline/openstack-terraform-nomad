@@ -57,6 +57,10 @@ resource "null_resource" "consul_cluster" {
     cluster_instance_ips = join(" ", [for s in "${openstack_compute_instance_v2.nomad_server.*.network.0.fixed_ip_v4}" : s if s != openstack_compute_instance_v2.nomad_server[count.index].network[0].fixed_ip_v4])
   }
 
+  lifecycle {
+    create_before_destroy = true
+  }
+
   connection {
     host                = openstack_compute_instance_v2.nomad_server[count.index].network.0.fixed_ip_v4
     agent               = "true"
