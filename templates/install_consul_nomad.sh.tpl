@@ -10,7 +10,7 @@ chmod 640 /etc/consul.d/consul.hcl
 datacenter = "dc1"
 data_dir = "/opt/consul"
 encrypt = "${CONSUL_MASTER_TOKEN}"
-# retry_join = ["127.0.0.1"]
+retry_join = [%{ for host in CONSUL_HOSTS ~}"${host}", %{ endfor ~}]
 performance {
   raft_multiplier = 1
 }
@@ -35,7 +35,6 @@ EOF
 %{ else }
 (cat <<-EOF
 server = false
-ui = true
 EOF
 ) > /etc/consul.d/server.hcl
 %{ endif }
@@ -99,10 +98,11 @@ WantedBy=multi-user.target
 EOF
 ) > /etc/systemd/system/consul.service
 
+%{ if IS_SERVER == true }
 systemctl enable consul
 systemctl start consul
 systemctl status consul
-
+%{ endif }
 
 echo "Installing Nomad..."
 curl --silent --remote-name https://releases.hashicorp.com/nomad/${NOMAD_VERSION}/nomad_${NOMAD_VERSION}_linux_amd64.zip
@@ -168,6 +168,7 @@ touch /etc/nomad.d/client.hcl
 (cat <<-EOF
 client {
   enabled = true
+  servers = [%{ for host in NOMAD_SERVER_HOSTS ~}"${host}:4647", %{ endfor ~}]
 }
 EOF
 ) > /etc/nomad.d/client.hcl
@@ -176,3 +177,9 @@ EOF
 systemctl enable nomad
 systemctl start nomad
 systemctl status nomad
+
+%{ if IS_SERVER == false }
+%{ for host in NOMAD_SERVER_HOSTS ~}
+nomad node config -update-servers "${host}:4647"
+%{ endfor ~}
+%{ endif }

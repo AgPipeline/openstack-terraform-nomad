@@ -15,6 +15,8 @@ resource "openstack_compute_instance_v2" "nomad_server" {
     CONSUL_MASTER_TOKEN = var.consul_master_token,
     NOMAD_SERVER_COUNT = var.nomad_server_count
     IS_SERVER = true
+    NOMAD_SERVER_HOSTS = []  # Empty on purpose to avoid cycles
+    CONSUL_HOSTS = []  # Empty on purpose to avoid cycles
   }
   )
 
@@ -82,7 +84,8 @@ resource "null_resource" "consul_cluster" {
   }
 
   provisioner "remote-exec" {
-    inline = [
+    inline = concat(
+    [
       "until [ -e /etc/consul.d/consul.hcl ]; do echo \"/etc/consul.d/consul.hcl doesn't exist as of yet...\"; sleep 5; done",
       "until [ ! -z \"$(grep consul /etc/passwd)\" ]; do echo \"No consul user yet\"; sleep 5; done",
       "sudo mv /home/ubuntu/consul.hcl /etc/consul.d/consul.hcl",
@@ -91,7 +94,8 @@ resource "null_resource" "consul_cluster" {
       "until [ ! -z \"$(systemctl list-unit-files | grep consul.service | grep enabled)\" ]; do echo \"No consul service yet\"; sleep 5; done",
       "sudo systemctl reload consul",
       "until [ ! -z \"$(systemctl list-unit-files | grep nomad.service | grep enabled)\" ]; do echo \"No nomad service yet\"; sleep 5; done"
-    ]
-    on_failure = "fail"
+    ],
+    formatlist("sudo consul join \"%s\"", flatten([for s in "${openstack_compute_instance_v2.nomad_server.*.network.0.fixed_ip_v4}" : s if s != openstack_compute_instance_v2.nomad_server[count.index].network[0].fixed_ip_v4]))
+    )
   }
 }

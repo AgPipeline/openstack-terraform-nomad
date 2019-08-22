@@ -15,7 +15,8 @@ resource "openstack_compute_instance_v2" "nomad_client" {
     CONSUL_MASTER_TOKEN = var.consul_master_token,
     NOMAD_SERVER_COUNT = length(data.openstack_networking_port_v2.consul_server_port.*.all_fixed_ips)
     IS_SERVER = false
-    # TODO: Add `CONSUL_HOSTS` to this template
+    NOMAD_SERVER_HOSTS = flatten(data.openstack_networking_port_v2.consul_server_port.*.all_fixed_ips)
+    CONSUL_HOSTS = flatten(data.openstack_networking_port_v2.consul_server_port.*.all_fixed_ips)
   }
   )
 
@@ -81,27 +82,33 @@ resource "null_resource" "update_consul_cluster_for_client" {
     destination     = "/home/ubuntu/consul.hcl"
   }
 
+  provisioner "remote-exec" {
+    inline = [
+      "until [ -e /etc/consul.d/consul.hcl ]; do echo \"/etc/consul.d/consul.hcl doesn't exist as of yet...\"; sleep 5; done",
+      "until [ ! -z \"$(grep consul /etc/passwd)\" ]; do echo \"No consul user yet\"; sleep 5; done",
+      "sudo mv /home/ubuntu/consul.hcl /etc/consul.d/consul.hcl",
+      "sudo chmod 640 /etc/consul.d/consul.hcl",
+      "sudo chown consul:consul /etc/consul.d/consul.hcl",
+    ]
+  }
+
   provisioner "file" {
     content         = templatefile("../templates/nomad_client.hcl.tpl",
     {
-      NOMAD_HOSTS = flatten(data.openstack_networking_port_v2.consul_server_port.*.all_fixed_ips)
+      NOMAD_SERVER_HOSTS = flatten(data.openstack_networking_port_v2.consul_server_port.*.all_fixed_ips)
     }
     )
     destination     = "/home/ubuntu/nomad_client.hcl"
   }
 
   provisioner "remote-exec" {
-    inline = [
-      "until [ -e /etc/consul.d/consul.hcl ]; do echo \"/etc/consul.d/consul.hcl doesn't exist as of yet...\"; sleep 5; done",
-      "until [ ! -z \"$(grep consul /etc/passwd)\" ]; do echo \"No consul user yet\"; sleep 5; done",
-      "sudo mv /home/ubuntu/nomad_client.hcl /etc/nomad.d/client.hcl",
-      "sudo mv /home/ubuntu/consul.hcl /etc/consul.d/consul.hcl",
-      "sudo chmod 640 /etc/consul.d/consul.hcl",
-      "sudo chown consul:consul /etc/consul.d/consul.hcl",
-      "until [ ! -z \"$(systemctl list-unit-files | grep consul.service | grep enabled)\" ]; do echo \"No consul service yet\"; sleep 5; done",
-      "sudo systemctl reload consul",
-      "until [ ! -z \"$(systemctl list-unit-files | grep nomad.service | grep enabled)\" ]; do echo \"No nomad service yet\"; sleep 5; done"
-    ]
-    on_failure = "fail"
+    inline = concat(
+      [
+        "until [ -e /etc/nomad.d/nomad.hcl ]; do echo \"/etc/nomad.d/nomad.hcl doesn't exist as of yet...\"; sleep 5; done",
+        "sudo mv /home/ubuntu/nomad_client.hcl /etc/nomad.d/client.hcl",
+        "until [ ! -z \"$(systemctl list-unit-files | grep nomad.service | grep enabled)\" ]; do echo \"No nomad service yet\"; sleep 5; done"
+      ],
+      formatlist("nomad node config -update-servers \"%s:4647\"", flatten(data.openstack_networking_port_v2.consul_server_port.*.all_fixed_ips))
+    )
   }
 }
