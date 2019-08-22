@@ -125,13 +125,18 @@ variable nomad_client_vol_size {
   default = "100"
 }
 
+variable nomad_client_join_cluster_server_ip_addresses {
+  type    = "list"
+  default = []
+}
+
 variable consul_master_token {
   default = "_consul_master_token_"
 }
 
 variable consul_version {
   type    = "string"
-  default = "1.5.2"
+  default = "1.5.3"
 }
 
 variable nomad_version {

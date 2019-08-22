@@ -10,6 +10,7 @@ resource "openstack_compute_instance_v2" "nomad_server" {
     NOMAD_VERSION  = var.nomad_version,
     CONSUL_MASTER_TOKEN = var.consul_master_token,
     NOMAD_SERVER_COUNT = var.nomad_server_count
+    IS_SERVER = true
   }
   )
 
@@ -64,7 +65,7 @@ resource "null_resource" "consul_cluster" {
     content         = templatefile("templates/consul.hcl.tpl",
     {
       CONSUL_MASTER_TOKEN = var.consul_master_token,
-      OTHER_CONSUL_HOSTS = [for s in "${openstack_compute_instance_v2.nomad_server.*.network.0.fixed_ip_v4}" : s if s != openstack_compute_instance_v2.nomad_server[count.index].network[0].fixed_ip_v4]
+      CONSUL_HOSTS = [for s in "${openstack_compute_instance_v2.nomad_server.*.network.0.fixed_ip_v4}" : s if s != openstack_compute_instance_v2.nomad_server[count.index].network[0].fixed_ip_v4]
     }
     )
     destination     = "/home/ubuntu/consul.hcl"

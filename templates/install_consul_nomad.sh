@@ -25,15 +25,42 @@ touch /etc/consul.d/server.hcl
 chown --recursive consul:consul /etc/consul.d
 chmod 640 /etc/consul.d/server.hcl
 
+%{ if IS_SERVER == true }
 (cat <<-EOF
 server = true
 bootstrap_expect = ${NOMAD_SERVER_COUNT}
 ui = true
 EOF
 ) > /etc/consul.d/server.hcl
+%{ else }
+(cat <<-EOF
+server = false
+ui = true
+EOF
+) > /etc/consul.d/server.hcl
+%{ endif }
 
 apt-get update
 apt-get install -y unzip
+
+%{ if IS_SERVER == false}
+echo "Installing Docker..."
+sudo apt-get remove docker docker-engine docker.io
+sudo apt-get install apt-transport-https ca-certificates curl software-properties-common -y
+sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg |  sudo apt-key add -
+sudo apt-key fingerprint 0EBFCD88
+sudo add-apt-repository \
+      "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+      $(lsb_release -cs) \
+      stable"
+sudo apt-get update
+sudo apt-get install -y docker-ce
+# Restart docker to make sure we get the latest version of the daemon if there is an upgrade
+sudo service docker restart
+# TODO: Should we add the nomad user to the docker group?
+sudo usermod -aG docker ubuntu
+sudo docker --version
+%{ endif }
 
 curl --silent --remote-name https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_linux_amd64.zip
 
@@ -125,6 +152,7 @@ data_dir = "/opt/nomad"
 EOF
 ) > /etc/nomad.d/nomad.hcl
 
+%{ if IS_SERVER == true }
 # Server configuration
 touch /etc/nomad.d/server.hcl
 (cat <<-EOF
@@ -134,15 +162,16 @@ server {
 }
 EOF
 ) > /etc/nomad.d/server.hcl
-
+%{ else }
 # Client configuration
-#touch /etc/nomad.d/client.hcl
-#(cat <<-EOF
-#client {
-#  enabled = true
-#}
-#EOF
-#) > /etc/nomad.d/client.hcl
+touch /etc/nomad.d/client.hcl
+(cat <<-EOF
+client {
+  enabled = true
+}
+EOF
+) > /etc/nomad.d/client.hcl
+%{ endif }
 
 systemctl enable nomad
 systemctl start nomad
