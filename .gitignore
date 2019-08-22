@@ -10,5 +10,8 @@ configs/
 # Cloud credentials
 clouds.yaml
 
+# Potentially secret settings
+*.tfvars
+
 # Vagrant & VirtualBox
 .vagrant
