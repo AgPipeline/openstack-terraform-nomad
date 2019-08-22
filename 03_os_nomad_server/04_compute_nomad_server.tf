@@ -1,10 +1,14 @@
+resource "openstack_compute_servergroup_v2" "consul_nomad_server_group" {
+  name     = "consul-nomad-servers"
+  policies = ["soft-anti-affinity"]
+}
+
 resource "openstack_compute_instance_v2" "nomad_server" {
   count             = var.nomad_server_count
   name              = "${var.env_name}-nomad_server${count.index}"
   flavor_name       = var.nomad_server_flavor
-  key_pair          = openstack_compute_keypair_v2.terraform.name
-  availability_zone = var.availability_zone
-  user_data         = templatefile("templates/install_consul_nomad.sh",
+  key_pair          = data.openstack_compute_keypair_v2.terraform.name
+  user_data         = templatefile("../templates/install_consul_nomad.sh.tpl",
   {
     CONSUL_VERSION = var.consul_version,
     NOMAD_VERSION  = var.nomad_version,
@@ -13,6 +17,10 @@ resource "openstack_compute_instance_v2" "nomad_server" {
     IS_SERVER = true
   }
   )
+
+  scheduler_hints {
+    group             = openstack_compute_servergroup_v2.consul_nomad_server_group.id
+  }
 
   block_device {
     uuid                  = data.openstack_images_image_v2.nomad_server_image.id
@@ -34,9 +42,7 @@ resource "openstack_compute_instance_v2" "nomad_server" {
   ]
 
   depends_on = [
-    "openstack_networking_router_interface_v2.router_interface_1",
-    "openstack_networking_subnet_v2.subnet_1",
-    "openstack_compute_instance_v2.bastion"
+    data.openstack_networking_subnet_v2.subnet_1
   ]
 }
 
@@ -57,12 +63,12 @@ resource "null_resource" "consul_cluster" {
     type                = "ssh"
     user                = "ubuntu"
     private_key         = file(var.privkey)
-    bastion_host        = openstack_networking_floatingip_v2.bastion_ip.address
+    bastion_host        = data.openstack_networking_floatingip_v2.bastion_ip.address
     bastion_private_key = file(var.privkey)
   }
 
   provisioner "file" {
-    content         = templatefile("templates/consul.hcl.tpl",
+    content         = templatefile("../templates/consul.hcl.tpl",
     {
       CONSUL_MASTER_TOKEN = var.consul_master_token,
       CONSUL_HOSTS = [for s in "${openstack_compute_instance_v2.nomad_server.*.network.0.fixed_ip_v4}" : s if s != openstack_compute_instance_v2.nomad_server[count.index].network[0].fixed_ip_v4]
