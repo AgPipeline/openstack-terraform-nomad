@@ -38,11 +38,8 @@ job "clowder" {
       driver = "docker"
 
       config {
-//        image = "clowder/clowder:1.7.1"
-        image = "jpistorius/clowder:dev"
-        //        image = "nginx:1.16.0-alpine"
+        image = "clowder/clowder:1.7.1"
         port_map {
-          //          http = 80
           http = 9000
         }
 
@@ -55,20 +52,11 @@ job "clowder" {
           "mongo:${NOMAD_IP_http}",
           "elasticsearch:${NOMAD_IP_http}"
         ]
-
-        volume_driver = "local"
-
-        volumes = [
-          "clowder-custom:/home/clowder/custom",
-          "clowder-data:/home/clowder/data"
-        ]
       }
 
       resources {
         cpu    = 6000
         memory = 2048
-//        cpu    = 50
-//        memory = 64
         network {
           mbits = 10
           port "http" {}
