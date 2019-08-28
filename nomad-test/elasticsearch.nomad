@@ -31,17 +31,16 @@ job "elasticsearch" {
     ephemeral_disk {
       sticky  = true
       migrate = true
-      size    = 1024
+      size    = 32768
     }
 
     task "elasticsearch_container" {
       driver = "docker"
 
       config {
-        //          image = "elasticsearch:7.3.0"
-        image = "elasticsearch:2"
+        image   = "elasticsearch:2"
         command = "elasticsearch"
-        args = [
+        args    = [
           "-Des.cluster.name='clowder'"
         ]
         port_map {
@@ -52,8 +51,8 @@ job "elasticsearch" {
       }
 
       resources {
-        cpu    = 1000
-        memory = 1024
+        cpu    = 2000
+        memory = 4096
         network {
           mbits = 10
           port "http" {}
@@ -65,11 +64,13 @@ job "elasticsearch" {
         name = "elasticsearch-rest"
         port = "http"
         check {
-          name     = "green"
-          type     = "http"
-          path     = "/_cat/health?h=status"
-          interval = "10s"
-          timeout  = "2s"
+          name         = "green"
+          type         = "http"
+          path         = "/_cat/health?h=status"
+          interval     = "10s"
+          timeout      = "2s"
+          address_mode = "driver"
+          port         = 9200
         }
       }
 
@@ -85,12 +86,14 @@ job "elasticsearch" {
         }
 
         check {
-          name     = "green"
-          port     = "http"
-          type     = "http"
-          path     = "/_cat/health?h=status"
-          interval = "10s"
-          timeout  = "2s"
+          name         = "green"
+          port         = "http"
+          type         = "http"
+          path         = "/_cat/health?h=status"
+          interval     = "10s"
+          timeout      = "2s"
+          address_mode = "driver"
+          port         = 9300
         }
       }
     }
