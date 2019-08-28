@@ -59,7 +59,7 @@ resource "null_resource" "update_consul_cluster_for_client" {
   }
 
   lifecycle {
-    create_before_destroy = true
+    create_before_destroy = false
   }
 
   connection {
@@ -89,26 +89,9 @@ resource "null_resource" "update_consul_cluster_for_client" {
       "sudo mv /home/ubuntu/consul.hcl /etc/consul.d/consul.hcl",
       "sudo chmod 640 /etc/consul.d/consul.hcl",
       "sudo chown consul:consul /etc/consul.d/consul.hcl",
+      "until [ ! -z \"$(systemctl list-unit-files | grep consul.service | grep enabled)\" ]; do echo \"No consul service yet\"; sleep 5; done",
+      "sudo systemctl restart consul",
+      "until [ ! -z \"$(systemctl list-unit-files | grep nomad.service | grep enabled)\" ]; do echo \"No nomad service yet\"; sleep 5; done"
     ]
-  }
-
-  provisioner "file" {
-    content         = templatefile("../templates/nomad_client.hcl.tpl",
-    {
-      NOMAD_SERVER_HOSTS = flatten(data.openstack_networking_port_v2.consul_server_port.*.all_fixed_ips)
-    }
-    )
-    destination     = "/home/ubuntu/nomad_client.hcl"
-  }
-
-  provisioner "remote-exec" {
-    inline = concat(
-      [
-        "sudo mkdir -p /etc/nomad.d/",
-        "sudo mv /home/ubuntu/nomad_client.hcl /etc/nomad.d/client.hcl",
-        "until [ ! -z \"$(systemctl list-unit-files | grep nomad.service | grep enabled)\" ]; do echo \"No nomad service yet\"; sleep 5; done"
-      ],
-      formatlist("nomad node config -update-servers \"%s:4647\"", flatten(data.openstack_networking_port_v2.consul_server_port.*.all_fixed_ips))
-    )
   }
 }

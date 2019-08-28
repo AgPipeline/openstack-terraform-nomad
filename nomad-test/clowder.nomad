@@ -54,7 +54,7 @@ job "clowder" {
       }
 
       resources {
-        cpu    = 6000
+        cpu    = 2000
         memory = 2048
         network {
           mbits = 10

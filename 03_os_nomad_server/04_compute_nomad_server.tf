@@ -92,7 +92,7 @@ resource "null_resource" "consul_cluster" {
       "sudo chmod 640 /etc/consul.d/consul.hcl",
       "sudo chown consul:consul /etc/consul.d/consul.hcl",
       "until [ ! -z \"$(systemctl list-unit-files | grep consul.service | grep enabled)\" ]; do echo \"No consul service yet\"; sleep 5; done",
-      "sudo systemctl reload consul",
+      "sudo systemctl restart consul",
       "until [ ! -z \"$(systemctl list-unit-files | grep nomad.service | grep enabled)\" ]; do echo \"No nomad service yet\"; sleep 5; done"
     ],
     formatlist("sudo consul join \"%s\"", flatten([for s in "${openstack_compute_instance_v2.nomad_server.*.network.0.fixed_ip_v4}" : s if s != openstack_compute_instance_v2.nomad_server[count.index].network[0].fixed_ip_v4]))
