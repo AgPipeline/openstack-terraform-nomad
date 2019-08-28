@@ -12,7 +12,10 @@ job "fabio" {
         network_mode = "host"
         args         = [
           "-proxy.addr",
-          ":5432;proto=tcp"]
+          ":5432;proto=tcp",
+          "-proxy.addr",
+          ":27017;proto=tcp"
+        ]
       }
 
       resources {
@@ -28,6 +31,9 @@ job "fabio" {
           }
           port "postgresql_proxy" {
             static = 5432
+          }
+          port "mongo_proxy" {
+            static = 27017
           }
         }
       }

@@ -38,7 +38,7 @@ job "mongo" {
       driver = "docker"
 
       config {
-        image = "mongo:4.1.13-bionic"
+        image = "mongo:3.4"
         port_map {
           db = 27017
         }
@@ -78,6 +78,10 @@ job "mongo" {
           port         = 27017
           address_mode = "driver"
         }
+
+        tags = [
+          "urlprefix-:27017 proto=tcp"
+        ]
       }
     }
   }
