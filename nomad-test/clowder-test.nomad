@@ -20,7 +20,7 @@ job "clowder-test" {
   }
 
   group "web" {
-    count = 3
+    count = 1
     restart {
       attempts = 2
       interval = "30m"
@@ -31,7 +31,7 @@ job "clowder-test" {
     ephemeral_disk {
       sticky  = true
       migrate = true
-      size    = 300
+      size    = 2048
     }
 
     task "web_container" {
@@ -45,16 +45,28 @@ job "clowder-test" {
           //          http = 80
           http = 9000
         }
-        extra_hosts = [
-          "mylocalhost:${attr.unique.network.ip-address}",
-          "nomad-host-ip:${NOMAD_IP_http}",
-          "localhost:${NOMAD_IP_http}"
+
+//        extra_hosts = [
+//          "mylocalhost:${attr.unique.network.ip-address}",
+//          "nomad-host-ip:${NOMAD_IP_http}",
+//          "localhost:${NOMAD_IP_http}",
+//          "clowder:${NOMAD_IP_http}",
+//          "rabbitmq:${NOMAD_IP_http}",
+//          "mongo:${NOMAD_IP_http}",
+//          "elasticsearch:${NOMAD_IP_http}"
+//        ]
+
+        volume_driver = "local"
+
+        volumes = [
+          "clowder-custom:/home/clowder/custom",
+          "clowder-data:/home/clowder/data"
         ]
       }
 
       resources {
-        cpu    = 50
-        memory = 64
+        cpu    = 500
+        memory = 256
         network {
           mbits = 10
           port "http" {}

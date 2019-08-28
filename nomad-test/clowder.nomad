@@ -20,7 +20,7 @@ job "clowder" {
   }
 
   group "web" {
-    count = 3
+    count = 1
     restart {
       attempts = 2
       interval = "30m"
@@ -31,7 +31,7 @@ job "clowder" {
     ephemeral_disk {
       sticky  = true
       migrate = true
-      size    = 300
+      size    = 4096
     }
 
     task "web_container" {
@@ -45,71 +45,34 @@ job "clowder" {
           //          http = 80
           http = 9000
         }
+
+        extra_hosts = [
+          "mylocalhost:${attr.unique.network.ip-address}",
+          "nomad-host-ip:${NOMAD_IP_http}",
+          "localhost:${NOMAD_IP_http}",
+          "clowder:${NOMAD_IP_http}",
+          "rabbitmq:${NOMAD_IP_http}",
+          "mongo:${NOMAD_IP_http}",
+          "elasticsearch:${NOMAD_IP_http}"
+        ]
+
+        volume_driver = "local"
+
+        volumes = [
+          "clowder-custom:/home/clowder/custom",
+          "clowder-data:/home/clowder/data"
+        ]
       }
 
       resources {
-//        cpu    = 500
-//        memory = 256
-        cpu    = 50
-        memory = 64
+        cpu    = 6000
+        memory = 2048
+//        cpu    = 50
+//        memory = 64
         network {
           mbits = 10
           port "http" {}
         }
-      }
-
-      template {
-        data = <<EOH
-          {{ with service "postgresql" }}
-          {{ with index . 0 }}
-          POSTGRES_IP="{{ .Address }}"
-          POSTGRES_PORT="{{ .Port }}"
-          {{ end }}{{ end }}
-          {{ with service "mongo" }}
-          {{ with index . 0 }}
-          MONGO_URI="mongodb://{{ .Address }}:{{ .Port }}/clowder"
-          {{ end }}{{ end }}
-          {{ with service "rabbitmq" }}
-          {{ with index . 0 }}
-          RABBITMQ_URI="amqp://guest:guest@{{ .Address }}:{{ .Port }}/%2F"
-          {{ end }}{{ end }}
-          RABBITMQ_CLOWDERURL="http://{{ env "NOMAD_ADDR_http" }}"
-          {{ with service "elasticsearch-rpc" }}
-          {{ with index . 0 }}
-          ELASTICSEARCH_RPC_IP="{{ .Address }}"
-          ELASTICSEARCH_RPC_PORT="{{ .Port }}"
-          {{ end }}{{ end }}
-        EOH
-
-        destination = "secrets/custom.env"
-        env         = true
-      }
-
-      template {
-        data = <<EOH
-# START: {{ timestamp }}
-application.secret="#,uXmau>8'X7bhN#uYX%cP<DAw-=dkZvxNU9cq&']3(qKUXSw[']{UYRW::Lk'Mu"
-commKey="8M3wVqcAYa"
-registerThroughAdmins=false
-initialAdmins="admin@example.com"
-smtp.mock=true
-smtp.host="smtp"
-service.byteStorage=services.filesystem.DiskByteStorageService
-clowder.diskStorage.path="/home/clowder/data"
-mongodbURI = ${MONGO_URI}
-clowder.rabbitmq.uri=${RABBITMQ_URI}
-clowder.rabbitmq.exchange=clowder
-clowder.rabbitmq.clowderurl=${RABBITMQ_CLOWDERURL}
-elasticsearchSettings.clusterName="clowder"
-elasticsearchSettings.serverAddress=${ELASTICSEARCH_RPC_IP}
-elasticsearchSettings.serverPort=${ELASTICSEARCH_RPC_PORT}
-postgres.host=${POSTGRES_IP}
-postgres.host=${POSTGRES_PORT}
-# END: {{ timestamp }}
-EOH
-
-        destination = "local/custom.conf"
-        env         = false
       }
 
 
