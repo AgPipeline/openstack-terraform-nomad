@@ -46,7 +46,6 @@ job "clowder" {
         extra_hosts = [
           "mylocalhost:${attr.unique.network.ip-address}",
           "nomad-host-ip:${NOMAD_IP_http}",
-          "localhost:${NOMAD_IP_http}",
           "clowder:${NOMAD_IP_http}",
           "rabbitmq:${NOMAD_IP_http}",
           "mongo:${NOMAD_IP_http}",
