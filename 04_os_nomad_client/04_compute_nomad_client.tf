@@ -104,7 +104,7 @@ resource "null_resource" "update_consul_cluster_for_client" {
   provisioner "remote-exec" {
     inline = concat(
       [
-        "until [ -e /etc/nomad.d/nomad.hcl ]; do echo \"/etc/nomad.d/nomad.hcl doesn't exist as of yet...\"; sleep 5; done",
+        "sudo mkdir -p /etc/nomad.d/",
         "sudo mv /home/ubuntu/nomad_client.hcl /etc/nomad.d/client.hcl",
         "until [ ! -z \"$(systemctl list-unit-files | grep nomad.service | grep enabled)\" ]; do echo \"No nomad service yet\"; sleep 5; done"
       ],
