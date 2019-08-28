@@ -31,7 +31,7 @@ job "clowder" {
     ephemeral_disk {
       sticky  = true
       migrate = true
-      size    = 4096
+      size    = 32768
     }
 
     task "web_container" {
@@ -54,7 +54,7 @@ job "clowder" {
       }
 
       resources {
-        cpu    = 2000
+        cpu    = 1000
         memory = 2048
         network {
           mbits = 10
@@ -65,28 +65,33 @@ job "clowder" {
 
       service {
         name = "web"
-        tags = ["urlprefix-/"]
+        tags = [
+          "urlprefix-/"]
         port = "http"
-//        check {
-//          name     = "alive"
-//          type     = "script"
-//          command  = "/home/clowder/healthcheck.sh"
-//          interval = "30s"
-//          timeout  = "5s"
-//        }
+        //        check {
+        //          name     = "alive"
+        //          type     = "script"
+        //          command  = "/home/clowder/healthcheck.sh"
+        //          interval = "30s"
+        //          timeout  = "5s"
+        //        }
         check {
-          name     = "tcp-check"
-          port     = "http"
-          type     = "tcp"
-          interval = "10s"
-          timeout  = "2s"
+          name         = "tcp-check"
+          port         = "http"
+          type         = "tcp"
+          interval     = "10s"
+          timeout      = "2s"
+          port         = 9000
+          address_mode = "driver"
         }
         check {
-          name     = "alive"
-          type     = "http"
-          path     = "/"
-          interval = "10s"
-          timeout  = "2s"
+          name         = "alive"
+          type         = "http"
+          path         = "/"
+          interval     = "10s"
+          timeout      = "2s"
+          port         = 9000
+          address_mode = "driver"
         }
       }
     }
