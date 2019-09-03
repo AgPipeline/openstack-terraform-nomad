@@ -64,7 +64,7 @@ job "elasticsearch" {
         name = "elasticsearch-rest"
         port = "http"
         check {
-          name         = "green"
+          name         = "es-rest-health"
           type         = "http"
           path         = "/_cat/health?h=status"
           interval     = "10s"
@@ -79,21 +79,10 @@ job "elasticsearch" {
         port = "rpc"
 
         check {
-          name     = "alive"
+          name     = "es-rpc-tcp"
           type     = "tcp"
           interval = "10s"
           timeout  = "2s"
-        }
-
-        check {
-          name         = "green"
-          port         = "http"
-          type         = "http"
-          path         = "/_cat/health?h=status"
-          interval     = "10s"
-          timeout      = "2s"
-          address_mode = "driver"
-          port         = 9300
         }
       }
     }
