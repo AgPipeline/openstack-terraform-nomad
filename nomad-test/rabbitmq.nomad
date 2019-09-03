@@ -72,6 +72,10 @@ job "rabbitmq" {
           address_mode = "driver"
           port         = 5672
         }
+
+        tags = [
+          "urlprefix-:5672 proto=tcp"
+        ]
       }
 
       service {
@@ -86,6 +90,10 @@ job "rabbitmq" {
           address_mode = "driver"
           port         = 15672
         }
+
+        tags = [
+          "urlprefix-:15672 proto=tcp"
+        ]
       }
     }
   }

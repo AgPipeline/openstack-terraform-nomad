@@ -41,7 +41,7 @@ job "elasticsearch" {
         image   = "elasticsearch:2"
         command = "elasticsearch"
         args    = [
-          "-Des.cluster.name='clowder'"
+          "-Des.cluster.name=clowder"
         ]
         port_map {
           // https://discuss.elastic.co/t/elasticsearch-port-9200-or-9300/72080
@@ -72,6 +72,10 @@ job "elasticsearch" {
           address_mode = "driver"
           port         = 9200
         }
+
+        tags = [
+          "urlprefix-:9200 proto=tcp"
+        ]
       }
 
       service {
@@ -84,6 +88,10 @@ job "elasticsearch" {
           interval = "10s"
           timeout  = "2s"
         }
+
+        tags = [
+          "urlprefix-:9300 proto=tcp"
+        ]
       }
     }
   }

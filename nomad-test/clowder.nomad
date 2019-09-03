@@ -66,7 +66,7 @@ job "clowder" {
       service {
         name = "web"
         tags = [
-          "urlprefix-/"]
+          "urlprefix-:9000 proto=tcp"]
         port = "http"
         //        check {
         //          name     = "alive"

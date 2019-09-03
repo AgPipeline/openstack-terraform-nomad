@@ -20,7 +20,7 @@ job "mongo" {
   }
 
   group "database" {
-    count = 3
+    count = 1
     restart {
       attempts = 2
       interval = "30m"
