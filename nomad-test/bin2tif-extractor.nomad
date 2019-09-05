@@ -52,18 +52,27 @@ job "bin2tif" {
           "mongo:${NOMAD_IP_http}",
           "elasticsearch:${NOMAD_IP_http}"
         ]
-        volumes = [
+        volumes     = [
           "sensor-metadata/sensor-metadata-master:/home/extractor/sites/ua-mac/sensor-metadata"
         ]
       }
 
       artifact {
-        source = "https://github.com/terraref/sensor-metadata/archive/master.zip"
+        source      = "https://github.com/terraref/sensor-metadata/archive/master.zip"
         destination = "sensor-metadata"
 
         options {
           checksum = "md5:9562ab56309e8f796d52cb38cf14c3b9"
         }
+      }
+
+      template {
+        data = <<EOH
+# Environment variables required to work:
+{{key "service/bin2tif/environment"}}
+EOH
+        destination = "secrets/file.env"
+        env         = true
       }
 
       resources {
