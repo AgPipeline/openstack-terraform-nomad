@@ -9,6 +9,7 @@ job "pipeline-setup-example" {
       "CLOWDER_BASE_URL",
       "CLOWDER_USERNAME",
       "CLOWDER_PASSWORD",
+      "CLOWDER_SPACE",
       "CAPTURE_SENSOR_NAME",
       "CAPTURE_TIMESTAMP",
       "CAPTURE_RAW_DATA_URL",
@@ -60,11 +61,11 @@ job "pipeline-setup-example" {
       }
 
       artifact {
-        source      = "https://gist.githubusercontent.com/julianpistorius/4f1281026288141ad547d78eec06523c/raw/4c9e0a597958fcd601c6f85f874a332ce56b1523/pipeline_setup_example.py"
+        source      = "https://gist.githubusercontent.com/julianpistorius/4f1281026288141ad547d78eec06523c/raw/0750f2ed7b58f0be0474203a2339041b8f0aa4e0/pipeline_setup_example.py"
         destination = "/local"
 
         options {
-          checksum = "md5:f804b20be9b724fe676a40fd466914e5"
+          checksum = "md5:520e7a9e4ef934b76cd4065649d8e916"
         }
       }
 
@@ -90,6 +91,7 @@ job "pipeline-setup-example" {
         CLOWDER_BASE_URL     = "${NOMAD_META_CLOWDER_BASE_URL}"
         CLOWDER_USERNAME     = "${NOMAD_META_CLOWDER_USERNAME}"
         CLOWDER_PASSWORD     = "${NOMAD_META_CLOWDER_PASSWORD}"
+        CLOWDER_SPACE        = "${NOMAD_META_CLOWDER_SPACE}"
         CAPTURE_SENSOR_NAME  = "${NOMAD_META_CAPTURE_SENSOR_NAME}"
         CAPTURE_TIMESTAMP    = "${NOMAD_META_CAPTURE_TIMESTAMP}"
         CAPTURE_RAW_DATA_URL = "${NOMAD_META_CAPTURE_RAW_DATA_URL}"
